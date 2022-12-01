@@ -14,7 +14,7 @@ warnings.filterwarnings("ignore")
 # 问题可能出在Q那个位置，把那块抠一下
 # 那里的*到底代表引入多个参数还是解压？zip(*zip(a,b))=a,b  有这样一种用法
 def main():
-    # with open("fingerprints\jayme", 'r') as f:
+    # with open("fingerprints\jayme", 'r') as template:
     with open("fingerprints\jayme", 'r') as template:  # jayme这个文件应该就是用户用来验证的指纹
 
         # with open(argv[1], 'r') as f:  #with关键字会自动调用f.close()

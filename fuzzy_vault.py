@@ -18,7 +18,7 @@ r = 40  # 杂凑点数量
 '''****************************************************************************
     函数get_coefficients:将要保护的密钥编码为多项式的系数
     输入：密钥字符串
-    返回：系数
+    返回：多项式系数列表，从高阶到低阶
     
     函数内部问题：
     1. python3中的除法是float型，保留小数，这会导致后面的错误
@@ -35,18 +35,15 @@ r = 40  # 杂凑点数量
     5. 创建多项式的时候用for直接写的，但之后如果不是每阶都有的时候可能要改
     或者在系数列表对应位置0
     6.这个函数已经过测试，基本好用，之后要对多项式的常数项部分再修改一下，可能有问题
+    7.print发现输出了4个列表，正常来讲应该一共3个啊，第4个是把第3个又输出了一遍，排查一下是什么问题
 ****************************************************************************'''
 
 
 def get_coefficients(word):
-    # encodes a secret word as coefficients of a polynomial of 
-    # the given degree and returns the coefficients.
     word = word.upper()  # 把字符串word中的小写字符转换成大写
     n = len(word) // degree  # n为系数的长度
     if n < 1: n = 1  # 如果n<1就拉到1
-    # substrings = [word[i:i + n] for i in range(0, len(word), n)]  #用以下两句代替
-    rang = list(range(0, len(word), n))
-    substrings = [word[i:i + n] for i in rang]
+    substrings = [word[i:i + n] for i in list(range(0, len(word), n))]
 
     coeffs = []
     for substr in substrings:
@@ -123,13 +120,12 @@ def lock(secret, template):
     # range(t,r):[t,t+1,t+2....r-1]
     # t:真实点数量；r:杂凑点数量（其实应该是所有点的数量）
     # 这里并没有距离限制，这样可能导致某些杂凑点和真实点距离过近，解锁可能出问题。
+    # 杂凑点生成规则肯定要大改。
     for i in range(t, r):  # 那这不是只加了30个杂凑点么？
         x_i = uniform(0, max_x * 1.1)  # uniform(x,y):生成一个在[x,y]内的随机浮点数
         y_i = uniform(0, max_y * 1.1)
         vault.append([x_i, y_i])
     shuffle(vault)  # shuffle()方法将序列的所有元素随机排序。
-    # for vv in vault:
-    # print(vv[0])
     return vault
 
 
@@ -185,7 +181,7 @@ def unlock(template, vault):
     # 则Q应该是备选点集打包成的元组
     # template应该是用来验证的生物特征模板（比如fingerprints\jayme2)
     Q = list(zip(*[project(point) for point in template if project(point) is not None]))
-    # print(Q)  # print不出来，因为unlock是在authenticate中调用的，但是那边现在有问题
+    print(Q)
     # zip函数：将可迭代的对象作为参数，将对象中对应的元素打包成一个个元组，然后返回由这些元组组成的对象
     # python中zip返回的是一个列表
     try:

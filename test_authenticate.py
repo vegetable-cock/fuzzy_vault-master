@@ -1,38 +1,24 @@
-# to use: python authenticate.py fingerprints/jayme
-
-from vaults import vaults
-from fuzzy_vault import (unlock, decode)
-from sys import argv
-import warnings
-
-known = ['jayme woogerd', 'norman ramsey', 'ming chow']
-
-warnings.filterwarnings("ignore")
+def approx_equal(a, b, epsilon):
+    return abs(a - b) < epsilon
 
 
-def main():
-    with open("fingerprints\jayme", 'r') as f:
-
-        # with open(argv[1], 'r') as f:  #with关键字会自动调用f.close()
-        # open()返回了一个file，格式为open(filename, mode)，'r'表示只读
-        # argv[1]实则指的是执行程序时使用者输入的第一个参数。
-        # 直接在Spyder中运行因为没有参数传入，就会报list index out of range的错误
-
-        #template = [float(t) for t in template]
-        # 为什么要把t转换成浮点数？
-
-        for vault in vaults:
-            coeffs = unlock(template, vault)
-            try:
-                name = decode(coeffs)
-                if name in known:
-                    print('Hello, %s!' % name.title())
-                    return
-            except TypeError:
-                pass
-        print("Unknown user")
+vault = [[1, 2], [3, 4], [5, 6]]
+template = [[1, 8], [3, 10], [11, 12]]
 
 
-if __name__ == '__main__':
-    main()
+def project(x):
+    for point in vault:
+        if approx_equal(x[0], point[0], 0.001):  # 阈值过小合法用户可能不能解锁，阈值过大安全性下降
+            return [x[0], point[1]]
 
+    return None
+
+
+for p in template:
+    print(project(p))
+
+# Q = list(zip(*[project(p) for p in template if project(p) is not None]))
+# print(Q)
+
+# 理想输出的Q应该是:横纵坐标组成元组，Q是元组组成的列表。
+# 当前返回值：[(1,), (2,)]
