@@ -9,7 +9,8 @@ from random import (uniform, shuffle)
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy import polyfit
-import real
+# import real
+import test_real  # 暂时用我自己编的数
 
 degree = 4  # 多项式阶数
 t = 10  # 每个生物模板中特征点的数量
@@ -181,12 +182,16 @@ def unlock(template, vault):
     # 则Q应该是备选点集打包成的元组
     # template应该是用来验证的生物特征模板（比如fingerprints\jayme2)
     Q = list(zip(*[project(point) for point in template if project(point) is not None]))
-    print(Q)
+    # Q = list(zip([project(point) for point in template if project(point) is not None]))
+    print("Q=", Q)
+    print("Q[0]=", list(Q[0]))
+    print("Q[1]=", Q[1])   #为啥返回的东西是一个元组？？
     # zip函数：将可迭代的对象作为参数，将对象中对应的元素打包成一个个元组，然后返回由这些元组组成的对象
     # python中zip返回的是一个列表
+    print("多项式系数列表为", polyfit(Q[0], Q[1], deg=degree))   #测试用
     try:
-        return polyfit(Q[0], Q[1], deg=degree)
-    # polyfit是numpy中的拟合多项式函数，（x,y,阶数）
+        return polyfit(list(Q[0]), list(Q[1]), deg=degree)
+    # polyfit是numpy中的拟合多项式函数，（x,y,阶数）,xy应该是列表
     # 返回一个列表，表中为拟合出的多项式系数，从高阶到低阶
     except IndexError:
         return None
@@ -210,13 +215,21 @@ def decode(coeffs):
     # 如果用户解出来的coeffs是合法的，那么经过decode以后就会得到对应的word（人名）
     s = ""
     for c in coeffs:
+        print(c)
         num = int(round(c ** 3))  # round函数：四舍五入到整数位
         # int:将一个字符串或数字化成整形，向0取整
         if num == 0: continue
         while num > 0:
-            s += str(chr(num % 100)).lower()
+            print("num=", num)
+            print("num%100=", num%100)
+            print("chr(num%100)=", chr(num % 100))
+            print("str(chr(num%100))=", str(chr(num % 100)))
+            #s += str(chr(num % 100)).lower() # 原代码，解不出name来,而且为什么变成lower了啊，明明真实姓名是有大写的
+            #print("s=", s)
+            s += str(chr(int(num % 100))).lower()  # 测试用，能解出来乱码，其中包含真实姓名
+            print("s=", s)
             num /= 100
-    return s
+    return s #为什么读取一个字母就跳出循环了？
 
 
 '''****************************************************************************
@@ -233,18 +246,19 @@ def main():
     # 每个人的指纹信息化成真实点对应了vault中的40个点，一共120个点
     # 这个形式应该取决于lock函数
     # vaults中一共就三个对象，每个对象对应了40个点（10个真实点30个杂凑点）
+
     with open('vaults.py', 'w+') as f:
         f.write('vaults = [')
-        for p in real.people:
+        for p in test_real.people:
             # p应该是人名。
-            f.write(str(lock(p, real.people[p])))
+            f.write(str(lock(p, test_real.people[p])))
             f.write(',')
         f.write(']')
 
-    # print(lock(p, real.people[p]))
+    # print(lock(p, test_real.people[p]))
     tempx = []
     tempy = []
-    for a in lock(p, real.people[p]):
+    for a in lock(p, test_real.people[p]):
         tempx.append(a[0])
         tempy.append(a[1])
     painting(tempx, tempy)
